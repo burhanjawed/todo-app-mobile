@@ -2,7 +2,9 @@ import { ThemeContext } from '@/context/ThemeContext';
 import { Inter_500Medium, useFonts } from '@expo-google-fonts/inter';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
-import { useContext, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StatusBar } from 'expo-status-bar';
+import { useContext, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,13 +13,45 @@ import { data } from '@/data/todos';
 
 export default function Index() {
   const [todoInput, setTodoInput] = useState('');
-  const [todoData, setTodoData] = useState(data.sort((a, b) => b.id - a.id));
+  const [todoData, setTodoData] = useState([]);
 
   const { colorScheme, setColorScheme, theme } = useContext(ThemeContext);
 
   const [loaded, error] = useFonts({
     Inter_500Medium,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('TodoApp');
+        const storageTodos = jsonValue != null ? JSON.parse(jsonValue) : null;
+
+        if (storageTodos && storageTodos.length) {
+          setTodoData(storageTodos.sort((a, b) => b.id - a.id));
+        } else {
+          setTodoData(data.sort((a, b) => b.id - a.id));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [data]);
+
+  useEffect(() => {
+    const storeData = async () => {
+      try {
+        const jsonValue = JSON.stringify(todoData);
+        await AsyncStorage.setItem('TodoApp', jsonValue);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    storeData();
+  }, [todoData]);
 
   if (!loaded && !error) {
     return null;
@@ -110,6 +144,7 @@ export default function Index() {
         itemLayoutAnimation={LinearTransition}
         keyboardDismissMode='on-drag'
       />
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </SafeAreaView>
   );
 }
