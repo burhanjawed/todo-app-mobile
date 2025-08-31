@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.bjawed.CrudApp"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b72641dd-fdab-4889-8d4b-4c99460a2929"
+      }
+    },
+    "owner": "bjawed"
   }
 }
